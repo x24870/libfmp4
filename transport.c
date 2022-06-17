@@ -1,17 +1,17 @@
 /*
- * Author: Pu-Chen Mao
- * Date:   2018/11/15
+ * Author: Mave Rick
+ * Date:   2022/06/17
  * File:   transport.c
- * Desc:   FLV stream transport interface implementation
+ * Desc:   FMP4 stream transport interface implementation
  */
 
 #include "transport.h"
 
 /* Global transport registry and registered transport count */
-const flv_transport_t *transport_registry[MAX_TRANSPORT_COUNT] = {};
+const fmp4_transport_t *transport_registry[MAX_TRANSPORT_COUNT] = {};
 size_t transport_count = 0;
 
-const flv_transport_t *flv_transport_class(const char *url)
+const fmp4_transport_t *fmp4_transport_class(const char *url)
 {
     size_t idx = 0;
 

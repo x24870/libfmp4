@@ -1,8 +1,8 @@
 /*
- * Author: Pu-Chen Mao
- * Date:   2018/11/15
+ * Author: Mave Rick
+ * Date:   2022/06/17
  * File:   websocket.c
- * Desc:   FLV stream over WebSocket transport implementation
+ * Desc:   FMP4 stream over WebSocket transport implementation
  */
 
 #include <stdio.h>
@@ -16,30 +16,30 @@
 #include "transport.h"
 #include "websocket.h"
 
-static flv_transport_context_t flv_transport_websocket_context(
+static fmp4_transport_context_t fmp4_transport_websocket_context(
         error_context_t *errctx);
-static bool flv_transport_websocket_probe(const char *url);
+static bool fmp4_transport_websocket_probe(const char *url);
 static int websocket_event_handler(struct lws *wsi,
         enum lws_callback_reasons reason, void *data, void *in, size_t length);
 static bool websocket_traverse_frame(const context_t *wsctx,
         const uint8_t *frame, size_t length, error_context_t *errctx);
 
-static flv_transport_t websocket =
+static fmp4_transport_t websocket =
 {
     .name    = "websocket",
-    .desc    = "FLV-over-WebSocket",
-    .context = flv_transport_websocket_context,
-    .probe   = flv_transport_websocket_probe,
-    .init    = flv_transport_websocket_init,
-    .connect = flv_transport_websocket_connect,
-    .recv    = flv_transport_websocket_recv,
-    .fini    = flv_transport_websocket_fini,
+    .desc    = "FMP4-over-WebSocket",
+    .context = fmp4_transport_websocket_context,
+    .probe   = fmp4_transport_websocket_probe,
+    .init    = fmp4_transport_websocket_init,
+    .connect = fmp4_transport_websocket_connect,
+    .recv    = fmp4_transport_websocket_recv,
+    .fini    = fmp4_transport_websocket_fini,
 };
 
 REGISTER_TRANSPORT(websocket);
 
 bool
-flv_transport_websocket_init(flv_transport_context_t  ctx,
+fmp4_transport_websocket_init(fmp4_transport_context_t  ctx,
                              const char              *url,
                              error_context_t         *errctx)
 {
@@ -116,7 +116,7 @@ CLEANUP:
 }
 
 bool
-flv_transport_websocket_connect(flv_transport_context_t  ctx,
+fmp4_transport_websocket_connect(fmp4_transport_context_t  ctx,
                                 error_context_t         *errctx)
 {
     context_t *wsctx = NULL;
@@ -144,8 +144,8 @@ flv_transport_websocket_connect(flv_transport_context_t  ctx,
 }
 
 bool
-flv_transport_websocket_recv(flv_transport_context_t  ctx,
-                             flvtag_function_t        callback,
+fmp4_transport_websocket_recv(fmp4_transport_context_t  ctx,
+                             fmp4box_function_t        callback,
                              void                    *userdata,
                              error_context_t         *errctx)
 {
@@ -172,7 +172,7 @@ flv_transport_websocket_recv(flv_transport_context_t  ctx,
     return true;
 }
 
-void flv_transport_websocket_fini(flv_transport_context_t ctx)
+void fmp4_transport_websocket_fini(fmp4_transport_context_t ctx)
 {
     context_t *wsctx = NULL;
 
@@ -248,8 +248,8 @@ websocket_parse_url(const char  *url,
     }
 }
 
-static flv_transport_context_t
-flv_transport_websocket_context(error_context_t *errctx)
+static fmp4_transport_context_t
+fmp4_transport_websocket_context(error_context_t *errctx)
 {
     /* Allocate WebSocket context */
     context_t *wsctx = (context_t *)(calloc(1, sizeof(context_t)));
@@ -265,10 +265,10 @@ flv_transport_websocket_context(error_context_t *errctx)
     (wsctx->protocols)[0].tx_packet_size = 0;
     (wsctx->protocols)[0].user = wsctx;
 
-    return (flv_transport_context_t)(wsctx);
+    return (fmp4_transport_context_t)(wsctx);
 }
 
-static bool flv_transport_websocket_probe(const char *url)
+static bool fmp4_transport_websocket_probe(const char *url)
 {
     const char *dot = NULL;
 
@@ -281,9 +281,9 @@ static bool flv_transport_websocket_probe(const char *url)
         strncmp(url, "wss://", sizeof("wss://") - 1) != 0)
         return false;
 
-    /* Check if URL ends with a .flv extension */
+    /* Check if URL ends with a .mp4 extension */
     dot = strrchr(url, '.');
-    if (!dot || strncasecmp(dot, ".flv", sizeof(".flv") - 1) != 0)
+    if (!dot || strncasecmp(dot, ".mp4", sizeof(".mp4") - 1) != 0)
         return false;
 
     return true;
@@ -343,30 +343,25 @@ websocket_traverse_frame(const context_t *wsctx,
                          size_t           length,
                          error_context_t *errctx)
 {
-    const flv_tag_t *tag = NULL;
+    const fmp4_box_t *box = NULL;
     const uint8_t   *end = frame + length;
 
     /* Sanity checks */
     if (!wsctx || !frame || !wsctx->errctx || !wsctx->callback)
         error_save_retval(errctx, EINVAL, false);
 
-    /* Check whether the frame is an event response or a FLV frame */
+    /* Check whether the frame is an event response or a FMP4 frame */
     if (*frame == '{' && length < WEBSOCKET_MAX_CONTROL_MESSAGE_LENGTH)
         return true;
 
-    /* Skip FLV header if this is the first frame */
-    if (wsctx->response_count == 0)
-        frame += sizeof(flv_header_t) + sizeof(uint32_t);
-
-    /* Parse all FLV tags in this WebSocket frame */
-    #define NEXT_TAG_ADDRESS() ((const uint8_t *)(tag) + sizeof(flv_tag_t) + \
-            ntohu24(tag->length) + sizeof(uint32_t))
-    for (tag = (const flv_tag_t *)(frame);
-         tag < (const flv_tag_t *)(end);
-         tag = (const flv_tag_t *)(NEXT_TAG_ADDRESS()))
+    /* Parse all FMP4 boxes in this WebSocket frame */
+    #define NEXT_BOX_ADDRESS() ((const uint8_t *)(box) + ntohl(box->size))
+    for (box = (const fmp4_box_t *)(frame);
+         box < (const fmp4_box_t *)(end);
+         box = (const fmp4_box_t *)(NEXT_BOX_ADDRESS()))
     {
-        /* Invoke user-provided callback with FLV tag */
-        if (!wsctx->callback(tag, wsctx->userdata, wsctx->errctx))
+        /* Invoke user-provided callback with FMP4 box */
+        if (!wsctx->callback(box, wsctx->userdata, wsctx->errctx))
             error_save_retval(wsctx->errctx, errno, false);
     }
 

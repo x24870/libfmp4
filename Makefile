@@ -1,7 +1,7 @@
 CC = gcc
 OS=$(shell uname | tr '[:upper:]' '[:lower:]')
 
-LIB_ARCHIVE_NAME = libflv.a
+LIB_ARCHIVE_NAME = libfmp4.a
 
 CFLAGS = -Wall -O3 -flto -fPIC
 ifeq ($(OS),linux)
@@ -14,7 +14,7 @@ else ifeq ($(OS),darwin)
 endif
 CFLAGS += -I./cJSON
 
-OBJS = flv.o \
+OBJS = fmp4.o \
 	   transport.o \
 	   rtmp.o \
 	   cJSON/cJSON.o \

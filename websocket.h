@@ -2,14 +2,14 @@
  * Author: Pu-Chen Mao
  * Date:   2018/11/15
  * File:   websocket.h
- * Desc:   FLV stream over WebSocket transport public shared function headers
+ * Desc:   FMP4 stream over WebSocket transport public shared function headers
  */
 
 #pragma once
 
 #include "common.h"
 #include "error.h"
-#include "flv.h"
+#include "fmp4.h"
 #include "transport.h"
 
 #ifdef __cplusplus
@@ -30,7 +30,7 @@ extern "C"
         struct lws                       *wsi;
 
         /* User callback & context */
-        flvtag_function_t  callback;
+        fmp4box_function_t  callback;
         void              *userdata;
         error_context_t   *errctx;
 
@@ -50,13 +50,13 @@ extern "C"
     } context_t;
 
     /* Public exported functions */
-    bool flv_transport_websocket_init(flv_transport_context_t  ctx,
+    bool fmp4_transport_websocket_init(fmp4_transport_context_t  ctx,
             const char *url, error_context_t *errctx);
-    bool flv_transport_websocket_connect(flv_transport_context_t ctx,
+    bool fmp4_transport_websocket_connect(fmp4_transport_context_t ctx,
             error_context_t *errctx);
-    bool flv_transport_websocket_recv(flv_transport_context_t ctx,
-            flvtag_function_t callback, void *userdata, error_context_t *errctx);
-    void flv_transport_websocket_fini(flv_transport_context_t ctx);
+    bool fmp4_transport_websocket_recv(fmp4_transport_context_t ctx,
+            fmp4box_function_t callback, void *userdata, error_context_t *errctx);
+    void fmp4_transport_websocket_fini(fmp4_transport_context_t ctx);
     void websocket_parse_url(const char *url, char **hostname,
             uint32_t *port, char **path);
 
