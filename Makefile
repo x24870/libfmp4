@@ -16,10 +16,9 @@ CFLAGS += -I./cJSON
 
 OBJS = fmp4.o \
 	   transport.o \
-	   rtmp.o \
 	   cJSON/cJSON.o \
 	   websocket.o \
-	   evowebsocket.o \
+	   evowebsocket.o
 
 
 .PHONY: all static clean
