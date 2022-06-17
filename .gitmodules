@@ -1,3 +1,5 @@
 [submodule "cJSON"]
 	path = cJSON
-	url = ./cJSON
+	url = https://github.com/DaveGamble/cJSON
+[submodule "cJON"]
+	url = https://github.com/DaveGamble/cJSON/tree/324a6ac9a9b285ff7a5a3e5b2071e3624b94f2db
