@@ -5,8 +5,8 @@
  * Desc:   Common macros & type definitions
  */
 
-#ifndef _LIBFLV_COMMON_H_
-#define _LIBFLV_COMMON_H_
+#ifndef _LIBFMP4_COMMON_H_
+#define _LIBFMP4_COMMON_H_
 
 #include <stddef.h>
 #include <stdarg.h>

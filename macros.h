@@ -5,8 +5,8 @@
  * Desc:    Macro definitions
  */
 
-#ifndef _LIBFLV_MACROS_H_
-#define _LIBFLV_MACROS_H_
+#ifndef _LIBFMP4_MACROS_H_
+#define _LIBFMP4_MACROS_H_
 
 #include <arpa/inet.h>
 #include <assert.h>

@@ -1,12 +1,12 @@
 /*
- * Author: Pu-Chen Mao
- * Date:   2018/11/22
+ * Author: Mave Rick
+ * Date:   2022/06/20
  * File:   error.h
  * Desc:   Error handling helper macros
  */
 
-#ifndef _LIBFLV_ERROR_H_
-#define _LIBFLV_ERROR_H_
+#ifndef _LIBFMP4_ERROR_H_
+#define _LIBFMP4_ERROR_H_
 
 #include <assert.h>
 #include <errno.h>

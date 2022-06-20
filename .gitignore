@@ -12,7 +12,7 @@ wsgi_env/
 *.swm
 
 # bin
-libflv.*
+libfmp4.*
 *.bin
 *.o
 *.dylib
