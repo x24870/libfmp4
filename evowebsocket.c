@@ -205,7 +205,7 @@ evowebsocket_traverse_frame(const context_t *evowsctx,
         return true;
 
     /* Parse all FMP4 boxes in this WebSocket frame */
-    #define NEXT_BOX_ADDRESS() ((const uint8_t *)(box) + ntohu24(box->size))
+    #define NEXT_BOX_ADDRESS() ((const uint8_t *)(box) + ntohl(box->size))
     for (box = (const fmp4_box_t *)(frame);
          box < (const fmp4_box_t *)(end);
          box = (const fmp4_box_t *)(NEXT_BOX_ADDRESS()))
