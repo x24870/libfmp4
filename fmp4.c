@@ -116,3 +116,33 @@ void fmp4_destroy(fmp4_t *fmp4)
     FREE_AND_NULLIFY(*fmp4);
 }
 
+
+uint64_t
+fmp4_parse_wallclock(const uint8_t   *body,
+                    size_t           length,
+                    error_context_t *errctx)
+{
+    const uint8_t *ptr = body;
+    uint64_t       val = 0;
+
+    /* Sanity checks */
+    if (!body || !errctx)
+        error_save_retval(errctx, EINVAL, 0);
+
+    /* Skip pts */
+    ptr += sizeof(uint64_t);
+
+    /* Check if pointer out of box */
+    if ((ptr + sizeof(uint16_t) - (body - sizeof(uint8_t))) > length){
+        printf("error prt > length");
+	error_save_retval(errctx, EBADMSG, 0);
+    }
+
+    /* parse wallclock  timestamp */
+    val = ntohl(*(uint32_t*)(ptr));
+    val <<= 32;
+    ptr += sizeof(uint32_t);
+    val += ntohl(*(uint32_t*)(ptr));
+
+    return val;
+}
